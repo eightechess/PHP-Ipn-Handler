@@ -5,44 +5,54 @@
     }
 
     $postFields = "";
-    
+    //Sandbox
+    $url   = "https://sandbox.tranzcore.com/verify";
+      //  $url       ="http://httpbin.org/post";
+    //Live environment
+    //$url      = "https://secure.tranzcore.com/verify",
    // Collect all values posted to ipn listener and store in $postFields
     foreach($_POST as $key => $value){
         $postFields .= "&$key=".urlencode($value);
     }
 
-    $ch = curl_init();
-    
-    curl_setopt_array($ch,array(
-        //Sandbox
-        CURLOPT_URL => 'https://sandbox.tranzcore.com/verify',
-        //Live environment
-        //CURLOPT_URL => 'https://secure.tranzcore.com/verify',
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_POST => true,   
-        CURLOPT_POSTFIELDS => $postFields 
-    ));
+    $options = array(
+        'http' =>
+            array(
+                'method'  => 'POST', //We are using the POST HTTP method.
+                'header'  => 'Content-type: application/x-www-form-urlencoded',
+                'header'  => 'Accept: */*',
+                'header'  => 'Cache-Control: no-cache',
+                'header'  => 'charset: utf-8',
+                'content' => $postFields //Our URL-encoded query string.
+            )
+    );
 
-    
-    $response = curl_exec($ch);
-    curl_close($ch);
 
-    if ($response =="VERIFIED") {
+    //Pass our $options array into stream_context_create.
+    //This will return a stream context resource.
+    $streamContext  = stream_context_create($options);
+    //Use PHP's file_get_contents function to carry out the request.
+    //We pass the $streamContext variable in as a third parameter.
+    $result = file_get_contents($url, false, $streamContext);
+    //If $result is FALSE, then the request has failed.
+    
+    if($result === false){
+        //If the request failed, throw an Exception containing
+        //the error.
+        $error = error_get_last();
+        throw new Exception('POST request failed: ' . $error['message']);
+    }
+    
+    // Live Environment
+    // if ($result =="VERIFIED") {
+    //     //Update record here
+
+    // }
+    
+    // Sandbox
+    if ($result =="SANDBOX") {
         //Update record here
 
     }
-    // else{
-    //     //posted fields will be stored in file test.txt 
-    //     $handle = fopen("postedfields.txt", "w");
-    //     foreach ($_POST as $key => $value)
-    //        fwrite($handle, "$key => $value \r\n");
-    //        fclose($handle);
-
-    //     //posted fields will be stored in file response.txt
-    //        $handle = fopen("response.txt", "w");
-    //           fwrite($handle, $response);
-    //           fclose($handle);
-    // };
-
+    exit();
 ?>
