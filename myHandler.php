@@ -3,7 +3,6 @@
        header ( 'Location: index.php');
         exit();
     }
-
     $postFields = "";
     //Sandbox
     $url   = "https://sandbox.tranzcore.com/verify";
@@ -14,7 +13,6 @@
     foreach($_POST as $key => $value){
         $postFields .= "&$key=".urlencode($value);
     }
-
     $options = array(
         'http' =>
             array(
@@ -26,8 +24,6 @@
                 'content' => $postFields //Our URL-encoded query string.
             )
     );
-
-
     //Pass our $options array into stream_context_create.
     //This will return a stream context resource.
     $streamContext  = stream_context_create($options);
@@ -45,14 +41,14 @@
     
     // Live Environment
     // if ($result =="VERIFIED") {
-    //     //Update record here
-
+    ///If ipn response is "VERIFIED"
+    // check transaction statue ie "apstatus"
+    //if apstatus="Completed" you can update the transaction
     // }
     
     // Sandbox
     if ($result =="SANDBOX") {
         //Update record here
-
     }
     exit();
 ?>
